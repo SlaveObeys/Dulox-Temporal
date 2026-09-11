@@ -150,4 +150,4 @@ El proyecto está preparado para desplegarse mediante su [Dockerfile](file:///e:
 
 1. En Coolify, crea el recurso seleccionando este repositorio y apunta al archivo `Dockerfile`.
 2. Configura las variables de entorno en el panel (base de datos PostgreSQL de la VPS y credenciales SMTP de Resend).
-3. Al iniciar, el contenedor ejecutará automáticamente `prisma migrate deploy` asegurando que la base de datos siempre esté sincronizada
+3. Al iniciar, el contenedor ejecutará automáticamente `prisma migrate deploy` asegurando que la base de datos siempre esté sincronizada.
