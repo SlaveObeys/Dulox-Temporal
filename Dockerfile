@@ -5,11 +5,14 @@ FROM node:22-alpine AS build
 
 WORKDIR /app
 
-# Activar pnpm vía corepack (lee la versión de "packageManager" en package.json)
+# Activar pnpm vía corepack
 RUN corepack enable
 
-# Copiar manifiestos (aprovecha caché de capas)
+# Copiar manifiestos
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Copiar Prisma antes de instalar dependencias
+COPY prisma ./prisma
 
 # Instalar TODAS las dependencias (dev incluidas) de forma reproducible
 RUN pnpm install --frozen-lockfile
@@ -23,6 +26,7 @@ RUN pnpm exec prisma generate
 # Compilar la app
 RUN pnpm run build
 
+
 # ============================================
 # Etapa 2: Runtime
 # ============================================
@@ -32,12 +36,13 @@ WORKDIR /app
 
 RUN corepack enable
 
-# Copiar manifiestos y el esquema de Prisma (crucial para que se genere el cliente)
+# Copiar manifiestos
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Copiar Prisma
 COPY prisma ./prisma
 
-# Instalar SOLO dependencias de producción.
-# Al tener prisma/schema.prisma presente, @prisma/client generará el cliente automáticamente.
+# Instalar SOLO dependencias de producción
 RUN pnpm install --frozen-lockfile --prod
 
 # Copiar artefactos desde la etapa de build
