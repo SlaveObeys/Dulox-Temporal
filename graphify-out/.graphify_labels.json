@@ -1,0 +1,16 @@
+{
+  "0": "devDependencies",
+  "1": "forms.module.ts",
+  "2": "dependencies",
+  "3": "compilerOptions",
+  "4": "app.module.ts",
+  "5": "BaseContactDto",
+  "6": "scripts",
+  "7": "tsconfig.build.json",
+  "8": "README.md",
+  "9": "AGENTS.md",
+  "10": "oxlint.json",
+  "11": "nest-cli.json",
+  "12": "vitest.config.ts",
+  "13": "vitest.config.e2e.ts"
+}

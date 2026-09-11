@@ -1,0 +1,21 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model RequestLog {
+  id        Int      @id @default(autoincrement())
+  type      String   // e.g., 'contacto', 'cotizacion', 'corte_laser', 'trabaja_con_nosotros'
+  nombre    String
+  rut       String
+  email     String
+  telefono  String
+  mensaje   String?  @db.Text
+  clienteId String?
+  metadata  Json?    // For any additional fields from different forms
+  createdAt DateTime @default(now())
+}
