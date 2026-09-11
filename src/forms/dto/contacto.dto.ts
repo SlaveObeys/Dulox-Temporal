@@ -26,9 +26,9 @@ export class BaseContactDto {
 
   @IsString({ message: 'El teléfono debe ser una cadena de texto.' })
   @IsNotEmpty({ message: 'El teléfono es obligatorio.' })
-  @MinLength(9, { message: 'El teléfono debe tener al menos 9 caracteres.' })
-  @MaxLength(11, {
-    message: 'El teléfono debe tener como máximo 11 caracteres.',
+  @MinLength(8, { message: 'El teléfono debe tener al menos 8 caracteres.' })
+  @MaxLength(12, {
+    message: 'El teléfono debe tener como máximo 12 caracteres.',
   })
   telefono: string;
 

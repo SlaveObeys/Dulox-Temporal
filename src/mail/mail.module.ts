@@ -1,21 +1,37 @@
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailService } from './mail.service.js';
 
 @Module({
   imports: [
-    MailerModule.forRoot({
-      transport: {
-        host: process.env.SMTP_HOST || 'smtp.resend.com',
-        port: Number(process.env.SMTP_PORT) || 465,
-        secure: true,
-        auth: {
-          user: process.env.SMTP_USER || 'resend',
-          pass: process.env.SMTP_PASS || '', // REEMPLAZAR CON API KEY DE RESEND
-        },
-      },
-      defaults: {
-        from: '"Dulox Cotizaciones" <contacto@dulox.cl>', // Debe estar verificado en Resend
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        const host = config.get<string>('SMTP_HOST', 'localhost');
+        const port = Number(config.get<number>('SMTP_PORT', 1025));
+        const secure =
+          config.get<string>('SMTP_SECURE') === 'true' || port === 465;
+        const user = config.get<string>('SMTP_USER', '');
+        const pass = config.get<string>('SMTP_PASS', '');
+
+        const auth = user ? { user, pass } : undefined;
+
+        return {
+          transport: {
+            host,
+            port,
+            secure,
+            ...(auth && { auth }),
+            ignoreTLS: !secure,
+          },
+          defaults: {
+            from:
+              config.get<string>('MAIL_FROM') ||
+              '"Dulox Cotizaciones" <contacto@dulox.cl>',
+          },
+        };
       },
     }),
   ],

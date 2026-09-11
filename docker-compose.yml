@@ -26,5 +26,13 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: dulox-mailpit
+    restart: always
+    ports:
+      - "1026:1025" # Servidor SMTP local (1026 en host -> 1025 en contenedor)
+      - "8026:8025" # Interfaz Web Dulox Mailpit (http://localhost:8026)
+
 volumes:
   pgdata:

@@ -1,4 +1,9 @@
-import { registerDecorator, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
+import {
+  registerDecorator,
+  ValidationOptions,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from 'class-validator';
 
 @ValidatorConstraint({ async: false })
 export class IsRutConstraint implements ValidatorConstraintInterface {
@@ -27,7 +32,7 @@ export class IsRutConstraint implements ValidatorConstraintInterface {
 
     let dvEsperado = 11 - (suma % 11);
     let dvEsperadoStr = '';
-    
+
     if (dvEsperado === 11) {
       dvEsperadoStr = '0';
     } else if (dvEsperado === 10) {
@@ -45,7 +50,7 @@ export class IsRutConstraint implements ValidatorConstraintInterface {
 }
 
 export function IsRut(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName,
