@@ -1,8 +1,9 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class RecaptchaService {
+  private readonly logger = new Logger(RecaptchaService.name);
   private readonly secretKey: string;
 
   constructor(private readonly configService: ConfigService) {
@@ -42,6 +43,9 @@ export class RecaptchaService {
       const data = await response.json();
 
       if (!data.success) {
+        this.logger.warn(
+          `reCAPTCHA rechazado: ${JSON.stringify(data['error-codes'] ?? [])} hostname=${data.hostname ?? '-'}`,
+        );
         throw new BadRequestException(
           'Verificación de seguridad fallida (reCAPTCHA).',
         );
