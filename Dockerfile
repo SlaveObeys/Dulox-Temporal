@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # ============================================
 # Etapa 1: Build
 # ============================================
@@ -8,23 +9,21 @@ WORKDIR /app
 # Activar pnpm vía corepack
 RUN corepack enable
 
-# Copiar manifiestos
+# Copiar manifiestos y Prisma (cambian poco: esta capa queda en caché)
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-
-# Copiar Prisma antes de instalar dependencias
 COPY prisma ./prisma
 
-# Instalar TODAS las dependencias (dev incluidas) de forma reproducible
-RUN pnpm install --frozen-lockfile
+# Instalar dependencias reutilizando el store de pnpm entre builds
+RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
+    pnpm install --frozen-lockfile
 
 # Copiar el resto del código
 COPY . .
 
-# Generar cliente Prisma
-RUN pnpm exec prisma generate
-
-# Compilar la app
-RUN pnpm run build
+# Generar cliente Prisma, compilar y dejar solo dependencias de producción
+RUN pnpm exec prisma generate \
+    && pnpm run build \
+    && pnpm prune --prod --ignore-scripts
 
 
 # ============================================
@@ -33,21 +32,14 @@ RUN pnpm run build
 FROM node:22-alpine AS runtime
 
 WORKDIR /app
+ENV NODE_ENV=production
 
-RUN corepack enable
-
-# Copiar manifiestos
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-
-# Copiar Prisma
+# Reutilizar node_modules ya podados (incluye el cliente Prisma generado)
+COPY package.json ./
 COPY prisma ./prisma
-
-# Instalar SOLO dependencias de producción
-RUN pnpm install --frozen-lockfile --prod
-
-# Copiar artefactos desde la etapa de build
+COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 
 EXPOSE 3000
 
-CMD ["pnpm", "run", "start:prod"]
+CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy && node dist/main"]
