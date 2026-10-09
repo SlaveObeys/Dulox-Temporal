@@ -24,7 +24,9 @@ import { MailService } from './mail.service.js';
             port,
             secure,
             ...(auth && { auth }),
-            ignoreTLS: !secure,
+            // Sin auth (Mailpit local) no hay TLS; con auth en 587 se exige STARTTLS
+            ignoreTLS: !secure && !auth,
+            requireTLS: !secure && !!auth,
           },
           defaults: {
             from:
